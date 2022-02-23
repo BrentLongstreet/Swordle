@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./App.css";
+import Board from "./components/board/Board.js";
 import axios from "axios";
 
 function App() {
@@ -9,7 +10,10 @@ function App() {
   const RESPONSE_TYPE = "token";
 
   const [token, setToken] = useState("");
-  const [cover, setCover] = useState("");
+  const [cover, setCover] = useState(
+    "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
+  );
+  const [name, setName] = useState("");
 
   useEffect(() => {
     const hash = window.location.hash;
@@ -87,7 +91,7 @@ function App() {
     if (/\d/.test(songName) === true) {
       console.log("contains number");
     }
-
+    setName(songName);
     return { id: songId, name: songName };
   };
 
@@ -128,7 +132,9 @@ function App() {
         )}
       </div>
 
-      <img src={cover}></img>
+      <img src={cover} alt="Music cover"></img>
+      <h2>{name}</h2>
+      <Board />
     </div>
   );
 }
