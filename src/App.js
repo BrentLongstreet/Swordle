@@ -109,7 +109,6 @@ function App() {
 
   const userPlaylist = async () => {
     const songInfo = await songInformation();
-    console.log(songInfo["name"]);
     await songImage(songInfo["id"]);
   };
   return (
@@ -134,7 +133,7 @@ function App() {
 
       <img src={cover} alt="Music cover"></img>
       <h2>{name}</h2>
-      <Board />
+      <Board title={name} />
     </div>
   );
 }

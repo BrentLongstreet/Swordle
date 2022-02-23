@@ -1,17 +1,21 @@
 import { useEffect, useState } from "react";
 import "./board.css";
 
-function Board() {
-  const [style, setStyle] = useState("repeat(10, 1fr)");
+function Board({ title }) {
+  const [style, setStyle] = useState(`repeat(${title.length}, 1fr)`);
+
+  useEffect(() => {
+    setStyle(`repeat(${title.length}, 1fr)`);
+    createSquares();
+  });
 
   const createSquares = () => {
     const gameBoard = document.getElementById("board");
-    gameBoard.style.gridTemplateColumns = style;
     while (gameBoard.firstChild) {
       gameBoard.firstChild.remove();
     }
-    let rows = style.substring(style.indexOf("(") + 1, style.lastIndexOf(","));
-    for (let index = 0; index < rows * 5; index++) {
+    gameBoard.style.gridTemplateColumns = style;
+    for (let index = 0; index < title.length * 5; index++) {
       let square = document.createElement("div");
       square.classList.add("square");
       square.classList.add("animate__animated");
@@ -19,28 +23,45 @@ function Board() {
       gameBoard.appendChild(square);
     }
   };
+  let guessedWords = [[]];
+  let availableSpace = 1;
 
-  useEffect(() => {
-    createSquares();
-  }, []);
-
-  const update = () => {
-    setStyle("repeat(15, 1fr)");
-    const gameBoard = document.getElementById("board");
-    gameBoard.style.gridTemplateColumns = style;
-    createSquares();
+  const getCurretWordArr = () => {
+    const numberOfGuessedWords = guessedWords.length;
+    return guessedWords[numberOfGuessedWords - 1];
   };
+
+  const updateGuessedWords = (letter) => {
+    const currentWordArr = getCurretWordArr();
+
+    if (currentWordArr && currentWordArr.length < title.length) {
+      currentWordArr.push(letter);
+
+      const availableSpaceEl = document.getElementById(String(availableSpace));
+
+      availableSpace = availableSpace + 1;
+      availableSpaceEl.textContent = letter;
+    }
+  };
+
+  const keys = document.querySelectorAll(".keyboard-row button");
+  for (let i = 0; i < keys.length; i++) {
+    keys[i].onclick = ({ target }) => {
+      const letter = target.getAttribute("data-key");
+      console.log(letter);
+
+      updateGuessedWords(letter);
+    };
+  }
   return (
     <div id="container">
       <div id="game">
         <header>
-          <h1 class="title">WORDLE</h1>
+          <h1 class="title">{title.length}</h1>
         </header>
-        <button id="chop" onClick={update}>
-          HIT ME
-        </button>
+
         <div id="board-container">
-          <div id="board" style={{ gridTemplateColumns: style }}></div>
+          <div id="board"></div>
         </div>
 
         <div id="keyboard-container">
