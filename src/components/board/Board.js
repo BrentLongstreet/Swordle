@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import "./board.css";
+import "animate.css";
 
 function Board({ title }) {
   let guessedWords = [[]];
   let availableSpace = 1;
+  let guessedWordCount = 0;
+
   const [style, setStyle] = useState(`repeat(${title.length}, 1fr)`);
 
   useEffect(() => {
@@ -25,18 +28,50 @@ function Board({ title }) {
       gameBoard.appendChild(square);
     }
   };
+  const getCurrentWordArr = () => {
+    const numberOfGuessedWords = guessedWords.length;
+    return guessedWords[numberOfGuessedWords - 1];
+  };
+  const getTileColor = (letter, index) => {
+    const isCorrectLetter = title.includes(letter);
+
+    if (!isCorrectLetter) {
+      return "rgb(58,58,60";
+    }
+
+    const letterInThatPosition = title.charAt(index);
+    const isCorrectPosition = letter === letterInThatPosition;
+
+    if (isCorrectPosition) {
+      return "rgb(83,141,78)";
+    }
+
+    return "rgb(181,159,59)";
+  };
 
   const handleSubmitWord = () => {
-    const currentWordArr = getCurretWordArr();
+    const currentWordArr = getCurrentWordArr();
     if (currentWordArr.length !== title.length) {
       window.alert(`Word must be ${title.length} letters`);
+      return;
     }
 
     const currentWord = currentWordArr.join("");
 
-    if (currentWord === title) {
-      window.alert("Congratulation");
-    }
+    const firstLetterId = guessedWordCount * title.length + 1;
+    const interval = 200;
+    currentWordArr.forEach((letter, index) => {
+      setTimeout(() => {
+        const tileColor = getTileColor(letter, index);
+
+        const letterId = firstLetterId + index;
+        const letterEl = document.getElementById(letterId);
+        letterEl.classList.add("animate__flipInX");
+        letterEl.style = `background-color:${tileColor};border-color:${tileColor}`;
+      }, interval * index);
+    });
+    guessedWordCount += 1;
+
     if (
       guessedWords.length === 5 &&
       currentWord !== title &&
@@ -48,13 +83,21 @@ function Board({ title }) {
       guessedWords.push([]);
     }
   };
-  const getCurretWordArr = () => {
-    const numberOfGuessedWords = guessedWords.length;
-    return guessedWords[numberOfGuessedWords - 1];
+
+  const handleDeleteLetter = () => {
+    const currentWordArr = getCurrentWordArr();
+    const removedLetter = currentWordArr.pop();
+
+    guessedWords[guessedWords.length - 1] = currentWordArr;
+
+    const lastLetterEl = document.getElementById(String(availableSpace - 1));
+
+    lastLetterEl.textContent = "";
+    availableSpace = availableSpace - 1;
   };
 
   const updateGuessedWords = (letter) => {
-    const currentWordArr = getCurretWordArr();
+    const currentWordArr = getCurrentWordArr();
 
     if (currentWordArr && currentWordArr.length < title.length) {
       currentWordArr.push(letter);
@@ -76,6 +119,11 @@ function Board({ title }) {
         handleSubmitWord();
         return;
       }
+
+      if (letter === "DEL") {
+        handleDeleteLetter();
+        return;
+      }
       updateGuessedWords(letter);
     };
   }
@@ -83,7 +131,7 @@ function Board({ title }) {
     <div id="container">
       <div id="game">
         <header>
-          <h1 class="title">{title.length}</h1>
+          <h1 className="title">{title.length}</h1>
         </header>
 
         <div id="board-container">
@@ -91,7 +139,7 @@ function Board({ title }) {
         </div>
 
         <div id="keyboard-container">
-          <div class="keyboard-row">
+          <div className="keyboard-row">
             <button data-key="q">q</button>
             <button data-key="w">w</button>
             <button data-key="e">e</button>
@@ -103,8 +151,8 @@ function Board({ title }) {
             <button data-key="o">o</button>
             <button data-key="p">p</button>
           </div>
-          <div class="keyboard-row">
-            <div class="spacer-half"></div>
+          <div className="keyboard-row">
+            <div className="spacer-half"></div>
             <button data-key="a">a</button>
             <button data-key="s">s</button>
             <button data-key="d">d</button>
@@ -114,10 +162,10 @@ function Board({ title }) {
             <button data-key="j">j</button>
             <button data-key="k">k</button>
             <button data-key="l">l</button>
-            <div class="spacer-half"></div>
+            <div className="spacer-half"></div>
           </div>
-          <div class="keyboard-row">
-            <button data-key="enter" class="wide-button">
+          <div className="keyboard-row">
+            <button data-key="enter" className="wide-button">
               Enter
             </button>
             <button data-key="z">z</button>
@@ -127,7 +175,7 @@ function Board({ title }) {
             <button data-key="b">b</button>
             <button data-key="n">n</button>
             <button data-key="m">m</button>
-            <button data-key="del" class="wide-button">
+            <button data-key="del" className="wide-button">
               Del
             </button>
           </div>
