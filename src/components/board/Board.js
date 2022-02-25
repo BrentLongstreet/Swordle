@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import "./board.css";
 
 function Board({ title }) {
+  let guessedWords = [[]];
+  let availableSpace = 1;
   const [style, setStyle] = useState(`repeat(${title.length}, 1fr)`);
 
   useEffect(() => {
@@ -23,9 +25,29 @@ function Board({ title }) {
       gameBoard.appendChild(square);
     }
   };
-  let guessedWords = [[]];
-  let availableSpace = 1;
 
+  const handleSubmitWord = () => {
+    const currentWordArr = getCurretWordArr();
+    if (currentWordArr.length !== title.length) {
+      window.alert(`Word must be ${title.length} letters`);
+    }
+
+    const currentWord = currentWordArr.join("");
+
+    if (currentWord === title) {
+      window.alert("Congratulation");
+    }
+    if (
+      guessedWords.length === 5 &&
+      currentWord !== title &&
+      currentWordArr.length === title.length
+    ) {
+      window.alert(`You have no more guesses! The song name was ${title}`);
+    }
+    if (currentWordArr.length === title.length) {
+      guessedWords.push([]);
+    }
+  };
   const getCurretWordArr = () => {
     const numberOfGuessedWords = guessedWords.length;
     return guessedWords[numberOfGuessedWords - 1];
@@ -47,9 +69,13 @@ function Board({ title }) {
   const keys = document.querySelectorAll(".keyboard-row button");
   for (let i = 0; i < keys.length; i++) {
     keys[i].onclick = ({ target }) => {
-      const letter = target.getAttribute("data-key");
+      const letter = target.getAttribute("data-key").toUpperCase();
       console.log(letter);
 
+      if (letter === "ENTER") {
+        handleSubmitWord();
+        return;
+      }
       updateGuessedWords(letter);
     };
   }

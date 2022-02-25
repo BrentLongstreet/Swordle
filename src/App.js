@@ -76,15 +76,19 @@ function App() {
 
       songId = randomSong.track.id;
       songName = randomSong.track.name
+        .replace(/[^a-zA-Z]/g, "")
         .split(" (")[0]
         .split(" -")[0]
-        .replace(/\W/g, "")
-        .split("FEAT")[0]
-        .toUpperCase();
+        .toUpperCase()
+        .split("FEAT")[0];
 
-      if (songName.length < 4 || songName.length > 15) {
+      if (
+        songName.length < 4 ||
+        songName.length > 13 ||
+        /\d/.test(randomSong.track.name) === true
+      ) {
         validSong = false;
-        console.log("bad", songName);
+        console.log("bad", songName, randomSong.track.name);
       }
     }
 
