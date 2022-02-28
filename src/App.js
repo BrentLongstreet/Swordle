@@ -6,7 +6,8 @@ import Image from "./images/placeholder.jpg";
 
 function App() {
   const CLIENT_ID = "15e7a2fcae3740a8938ac5edf8460262";
-  const REDIRECT_URI = "http://localhost:3000/";
+  const REDIRECT_URI = "https://heuristic-archimedes-a074dd.netlify.app";
+  //http://localhost:3000/
   const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize";
   const RESPONSE_TYPE = "token";
   const scope = "user-library-read";
