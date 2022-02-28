@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import "./board.css";
 import "animate.css";
 
-function Board({ title }) {
+function Board({ title, getAmountGuessed }) {
   let guessedWords = [[]];
   let availableSpace = 1;
   let guessedWordCount = 0;
@@ -71,7 +71,6 @@ function Board({ title }) {
       }, interval * index);
     });
     guessedWordCount += 1;
-
     if (
       guessedWords.length === 5 &&
       currentWord !== title &&

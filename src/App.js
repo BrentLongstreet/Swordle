@@ -2,21 +2,23 @@ import React, { useEffect, useState } from "react";
 import "./App.css";
 import Board from "./components/board/Board.js";
 import axios from "axios";
+import Image from "./images/placeholder.jpg";
 
 function App() {
   const CLIENT_ID = "15e7a2fcae3740a8938ac5edf8460262";
-  const REDIRECT_URI = "https://heuristic-archimedes-a074dd.netlify.app/";
+  const REDIRECT_URI = "http://localhost:3000/";
   const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize";
   const RESPONSE_TYPE = "token";
-
+  const scope = "user-library-read";
   const [token, setToken] = useState("");
-  const [cover, setCover] = useState("https://dummyimage.com/300x300/000/fff");
+  const [cover, setCover] = useState(Image);
   const [show, setShow] = useState(false);
   const [name, setName] = useState("");
   const [id, setId] = useState("");
   const [audio, setAudio] = useState(
     "https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3"
   );
+
   useEffect(() => {
     const hash = window.location.hash;
     let token = window.localStorage.getItem("token");
@@ -140,7 +142,7 @@ function App() {
 
       if (
         songName.length < 4 ||
-        songName.length > 7 ||
+        songName.length > 13 ||
         /\d/.test(randomSong.track.name) === true
       ) {
         validSong = false;
@@ -174,6 +176,15 @@ function App() {
       },
     });
     setCover(data.data.album.images[1].url);
+    let img = document.getElementById("cover").style;
+    if (img.visibility === "") {
+      img.visibility = "hidden";
+    } else if (img.visibility == "hidden") {
+      img.visibility = "visible";
+    } else {
+      img.visibility = "hidden";
+    }
+    console.log("yo", img.visibility);
   };
 
   const songPreview = async (id) => {
@@ -190,31 +201,30 @@ function App() {
 
   const playSong = () => {
     var song = document.getElementById("audio");
+    song.volume = 0.05;
     song.play();
   };
 
   const userPlaylist = async () => {
+    var song = document.getElementById("audio");
+    song.pause();
     const id = await songInformation();
     await songPreview(id);
-    setShow(false);
+    await songImage(id);
+    let img = document.getElementById("cover").style;
+    img.visibility = "hidden";
     setId(id);
-    if (id === "") {
-      window.alert("Unable to locate valid song! Try again");
-    } else {
-      await songImage(id);
-    }
   };
 
   const userLiked = async () => {
+    var song = document.getElementById("audio");
+    song.pause();
     const id = await likedSongInformation();
     await songPreview(id);
-    setShow(false);
+    await songImage(id);
+    let img = document.getElementById("cover").style;
+    img.visibility = "hidden";
     setId(id);
-    if (id === "") {
-      window.alert("Unable to locate valid song! Try again");
-    } else {
-      await songImage(id);
-    }
   };
 
   return (
@@ -223,7 +233,7 @@ function App() {
         {!token ? (
           <a
             className="login"
-            href={`${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}`}
+            href={`${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&scope=${scope}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}`}
           >
             Login to Spotify
           </a>
@@ -237,16 +247,20 @@ function App() {
         )}
         {token ? <button onClick={userLiked}>Liked</button> : <p></p>}
         {token ? (
-          <button onClick={() => setShow((s) => !s)}>Show Cover</button>
+          <button
+            onClick={() => {
+              songImage(id);
+            }}
+          >
+            Show Cover
+          </button>
         ) : (
           <p></p>
         )}
         {token ? <button onClick={playSong}>Play Audio</button> : <p></p>}
         <audio id="audio" src={audio}></audio>
-        <div style={{ visibility: show ? "visible" : "hidden" }}>
-          <img src={cover} alt="Music cover" id="cover"></img>
-        </div>
       </div>
+      <img src={cover} alt="Music cover" id="cover"></img>
 
       <Board title={name} />
     </div>
