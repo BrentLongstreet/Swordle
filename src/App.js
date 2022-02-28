@@ -15,9 +15,7 @@ function App() {
   const [show, setShow] = useState(false);
   const [name, setName] = useState("");
   const [id, setId] = useState("");
-  const [audio, setAudio] = useState(
-    "https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3"
-  );
+  const [audio, setAudio] = useState("");
 
   useEffect(() => {
     const hash = window.location.hash;
@@ -40,6 +38,9 @@ function App() {
   const logout = () => {
     setToken("");
     window.localStorage.removeItem("token");
+    pauseSong();
+    let img = document.getElementById("cover").style;
+    img.visibility = "hidden";
   };
 
   const playlistId = async () => {
@@ -48,14 +49,13 @@ function App() {
         Authorization: `Bearer ${token}`,
       },
     });
-    console.log(data);
     const playlistsInformation = data.data.items;
 
     const playlistId =
       playlistsInformation[
         Math.floor(Math.random() * playlistsInformation.length)
       ].id;
-
+    //Math.floor(Math.random() * playlistsInformation.length
     return playlistId;
   };
 
@@ -66,6 +66,7 @@ function App() {
       },
       params: {
         limit: 50,
+        market: "US",
       },
     });
     let randomSong = "";
@@ -92,19 +93,13 @@ function App() {
         /\d/.test(randomSong.track.name) === true
       ) {
         validSong = false;
-        console.log("bad", songName, randomSong.track.name);
         count++;
-        console.log(count);
       }
       if (count > 30) {
         songName = "";
         songId = "";
         break;
       }
-    }
-    console.log(songId);
-    if (/\d/.test(songName) === true) {
-      console.log("contains number");
     }
     if (songName !== "") {
       setName(songName);
@@ -119,6 +114,9 @@ function App() {
       {
         headers: {
           Authorization: `Bearer ${token}`,
+        },
+        params: {
+          market: "US",
         },
       }
     );
@@ -142,23 +140,17 @@ function App() {
 
       if (
         songName.length < 4 ||
-        songName.length > 13 ||
+        songName.length > 15 ||
         /\d/.test(randomSong.track.name) === true
       ) {
         validSong = false;
-        console.log("bad", songName, randomSong.track.name);
         count++;
-        console.log(count);
       }
       if (count > 30) {
         songName = "";
         songId = "";
         break;
       }
-    }
-    console.log(songId);
-    if (/\d/.test(songName) === true) {
-      console.log("contains number");
     }
     if (songName !== "") {
       setName(songName);
@@ -167,24 +159,28 @@ function App() {
   };
 
   const songImage = async (id) => {
-    const data = await axios.get(`https://api.spotify.com/v1/tracks/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      params: {
-        id: id,
-      },
-    });
-    setCover(data.data.album.images[1].url);
-    let img = document.getElementById("cover").style;
-    if (img.visibility === "") {
-      img.visibility = "hidden";
-    } else if (img.visibility == "hidden") {
-      img.visibility = "visible";
+    if (id == "") {
+      return;
     } else {
-      img.visibility = "hidden";
+      const data = await axios.get(`https://api.spotify.com/v1/tracks/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        params: {
+          id: id,
+          market: "US",
+        },
+      });
+      setCover(data.data.album.images[1].url);
+      let img = document.getElementById("cover").style;
+      if (img.visibility === "") {
+        img.visibility = "hidden";
+      } else if (img.visibility == "hidden") {
+        img.visibility = "visible";
+      } else {
+        img.visibility = "hidden";
+      }
     }
-    console.log("yo", img.visibility);
   };
 
   const songPreview = async (id) => {
@@ -199,15 +195,25 @@ function App() {
     setAudio(data.data.preview_url);
   };
 
-  const playSong = () => {
-    var song = document.getElementById("audio");
-    song.volume = 0.05;
-    song.play();
+  const playSong = async () => {
+    if (audio === null) {
+      alert("Preview UNAVAILABLE for this song!");
+    } else {
+      let song = document.getElementById("audio");
+      song.volume = 0.05;
+      song.play();
+    }
+  };
+
+  const pauseSong = () => {
+    let song = document.getElementById("audio");
+    song.pause();
   };
 
   const userPlaylist = async () => {
-    var song = document.getElementById("audio");
+    let song = document.getElementById("audio");
     song.pause();
+    setAudio("");
     const id = await songInformation();
     await songPreview(id);
     await songImage(id);
@@ -217,8 +223,9 @@ function App() {
   };
 
   const userLiked = async () => {
-    var song = document.getElementById("audio");
+    let song = document.getElementById("audio");
     song.pause();
+    setAudio("");
     const id = await likedSongInformation();
     await songPreview(id);
     await songImage(id);
@@ -258,6 +265,7 @@ function App() {
           <p></p>
         )}
         {token ? <button onClick={playSong}>Play Audio</button> : <p></p>}
+        {token ? <button onClick={pauseSong}>Pause Audio</button> : <p></p>}
         <audio id="audio" src={audio}></audio>
       </div>
       <img src={cover} alt="Music cover" id="cover"></img>

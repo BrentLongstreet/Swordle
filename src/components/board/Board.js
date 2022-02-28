@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import "./board.css";
 import "animate.css";
+let score = 0;
+let streak = 0;
 
 function Board({ title, getAmountGuessed }) {
+  let guessedCorrectWord = false;
   let guessedWords = [[]];
   let availableSpace = 1;
   let guessedWordCount = 0;
-
   const [style, setStyle] = useState(`repeat(${title.length}, 1fr)`);
 
   useEffect(() => {
@@ -20,7 +22,7 @@ function Board({ title, getAmountGuessed }) {
       gameBoard.firstChild.remove();
     }
     gameBoard.style.gridTemplateColumns = style;
-    for (let index = 0; index < title.length * 5; index++) {
+    for (let index = 0; index < title.length * 4; index++) {
       let square = document.createElement("div");
       square.classList.add("square");
       square.classList.add("animate__animated");
@@ -72,14 +74,23 @@ function Board({ title, getAmountGuessed }) {
     });
     guessedWordCount += 1;
     if (
-      guessedWords.length === 5 &&
+      guessedWords.length === 4 &&
       currentWord !== title &&
       currentWordArr.length === title.length
     ) {
       window.alert(`You have no more guesses! The song name was ${title}`);
+      streak = 0;
+      document.getElementById("streak").textContent = streak;
     }
     if (currentWordArr.length === title.length) {
       guessedWords.push([]);
+    }
+    if (currentWord === title) {
+      score += 500;
+      streak += 1;
+      document.getElementById("score").textContent = score;
+      document.getElementById("streak").textContent = streak;
+      guessedCorrectWord = true;
     }
   };
 
@@ -112,25 +123,39 @@ function Board({ title, getAmountGuessed }) {
   for (let i = 0; i < keys.length; i++) {
     keys[i].onclick = ({ target }) => {
       const letter = target.getAttribute("data-key").toUpperCase();
-      console.log(letter);
-
-      if (letter === "ENTER") {
+      if (guessedCorrectWord === true) {
+        alert("You just guessed this song! Try another.");
+      } else if (letter === "ENTER") {
         handleSubmitWord();
         return;
-      }
-
-      if (letter === "DEL") {
+      } else if (letter === "DEL") {
         handleDeleteLetter();
         return;
+      } else {
+        updateGuessedWords(letter);
       }
-      updateGuessedWords(letter);
     };
   }
   return (
     <div id="container">
       <div id="game">
         <header>
-          <h1 className="title">{title.length}</h1>
+          <div className="score">
+            <h1 className="title" id="score">
+              {score}
+            </h1>
+            <h1 className="label">Score</h1>
+          </div>
+          <div className="letters">
+            <h1 className="title">{title.length}</h1>
+            <h1 className="label">Letters</h1>
+          </div>
+          <div className="streak">
+            <h1 className="title" id="streak">
+              {streak}
+            </h1>
+            <h1 className="label">Streak</h1>
+          </div>
         </header>
 
         <div id="board-container">

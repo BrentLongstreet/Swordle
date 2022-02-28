@@ -21,14 +21,26 @@ body {
 
 #game {
   width: 100%;
-  max-width: 1000px;
+  max-width: 1100px;
   height: 100%;
   display: flex;
   flex-direction: column;
 }
 
 header {
-  border-bottom: 1px solid rgb(58, 58, 60);
+  margin-right: 1rem;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+}
+.label {
+  color: gainsboro;
+  font-size: 1rem;
+  font-weight: bold;
+  margin: 0.4rem 0 0.4rem 0;
+  text-align: center;
+  font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+    "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
 }
 
 .title {
